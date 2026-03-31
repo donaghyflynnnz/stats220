@@ -1,0 +1,85 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+
+```{r}
+library(tidyverse)
+
+logged_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vSf_mAVF51_pdXGJLlDLyUKNxmZ2pCwSiJ6Q3wdy4hniwaw0opm3M204RG1jXsCLal3bd12jAab_HE-/pub?gid=775646179&single=true&output=csv")
+
+
+#Renaming variables
+latest_data <- logged_data %>% 
+  rename(num_birds = 2,
+         bird_type = 3,
+         weather = 4,
+         num_chirps = 5)
+
+latest_data_longer <- latest_data %>% 
+  separate_rows(bird_type, sep = ", ")
+
+```
+
+```{css}
+@import url('https://fonts.googleapis.com/css2?family=Comic+Relief:wght@400;700&family=Oswald:wght@200..700&display=swap');
+
+body {
+      font-family: 'Comic Relief', cursive;
+}
+
+h1, h2, h3{
+      color:#000000; background-color:#3177e8; padding:10px
+}
+
+h1, h2{
+  font-weight: bold
+  }
+
+```
+
+## Birds in the Back Garden
+
+This data was collected by myself in my back garden at home in Sandringham. Whenever I felt like going outside, I would spend 30 seconds observing the garden looking for birds. I recorded the number of different birds I saw, the type of birds I saw, the number of bird chirps I heard, and the weather at the time of observation.
+
+### Bar Charts
+
+```{r}
+
+ggplot(data = latest_data_longer) +
+  geom_bar(aes(x = bird_type, fill = weather))+
+  theme_minimal() +
+  labs(title = "Bird type coloured by Weather at time of observation",
+       subtitle = "Observed over 30s periods in my back garden",
+       x = "Bird Type",
+       fill = "Weather",
+       y = "Count")
+
+ggplot(data = latest_data_longer) +
+  geom_bar(aes(x = num_birds, fill = bird_type))+
+  theme_minimal() +
+  labs(title = "Number of Birds Coloured by Type of Birds",
+       subtitle = "Data collected over 30s periods, in my back garden",
+       x = "Number of Birds",
+       fill = "Type of Birds",
+       y = "Count") 
+
+```
+
+### Dynamic Comments
+
+```{r}
+avg_chirps <- round(mean(latest_data$num_chirps, na.rm=TRUE), 2)
+
+avg_birds <- round(mean(latest_data$num_birds, na.rm=TRUE), 2)
+
+num_obs <- length(latest_data$Timestamp)
+
+```
+The average number of chirps heard across the `r num_obs` different 30 second periods observing the garden is `r avg_chirps`, and the average number of birds seen is `r avg_birds`. 
